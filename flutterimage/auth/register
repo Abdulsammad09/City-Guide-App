@@ -1,0 +1,28 @@
+<?php
+include('../connection.php');
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    $email = $_POST['email'];
+    $role = 'user'; // Hardcoded role
+
+    $stmt = $con->prepare("INSERT INTO user (username, password, email, role) VALUES (?, ?, ?, ?)");
+    if ($stmt === false) {
+        echo json_encode("Error preparing statement: " . $con->error);
+        exit();
+    }
+
+    $stmt->bind_param("ssss", $username, $password, $email, $role);
+
+    if ($stmt->execute()) {
+        echo json_encode("User registered successfully");
+    } else {
+        echo json_encode("Error executing statement: " . $stmt->error);
+    }
+
+    $stmt->close();
+}
+
+$con->close();
+?>
